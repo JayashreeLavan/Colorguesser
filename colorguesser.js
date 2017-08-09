@@ -1,89 +1,119 @@
 var squares = document.querySelectorAll(".square");
+var colorDisplay = document.getElementById("hint");
+var message = document.getElementById("message");
+var headerDisplay =document.querySelector("h1");
 var resetButton = document.querySelector("#reset");
-var difficulty = document.querySelectorAll("button");
+var easy = document.querySelector("#easy");
+var hard = document.querySelector("#hard");
+// var modeButtons = document.querySelectorAll(".mode");
 
-var colors = generateRandomColors(6);
-var index= generateClue(colors);
-setGridColors(colors)
-clickLogic();
-
-// resetButton.addEventListener("click",function(){
-// removeColor();
-// var colors = generateRandomColors(6);
-// var index= generateClue(colors);
-// setGridColors(colors)
-// clickLogic();
-// });
-
-// difficulty.addEventListener("click",function(){
-// difficulty.classList.add("selected");
-// });
+var gridSize =6;
+var colors = generateGridColors(gridSize);
+var pickedColor = pickColor();
+colorDisplay.textContent = pickedColor;
 
 
-//random number generator
-function getRandomIntInclusive(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+// for(var i =0;i<modeButtons.length;i++){
+// 	modeButtons[i].addEventListener("click",function(){
+// 		modeButtons[0].classList.remove("selected");
+// 		modeButtons[1].classList.remove("selected");
+// 		this.classList.add("selected");
+
+
+		
+// 	})
+// }
+
+
+
+resetButton.addEventListener("click",function(){
+	
+	buttonClick(gridSize);
+	
+	for(var i=0;i< squares.length;i++){
+		squares[i].style.background = colors[i];
+	}
+});
+
+easy.addEventListener("click",function(){
+	gridSize = 3;
+	easy.classList.add("selected");
+	hard.classList.remove("selected");
+	buttonClick(gridSize);
+	
+	for(var i=0;i< squares.length;i++){
+		if(colors[i]){
+		squares[i].style.background = colors[i];
+		}else{
+			squares[i].style.display = "none";
+		}
+	}
+});
+
+hard.addEventListener("click",function(){
+	gridSize = 6;
+	hard.classList.add("selected");
+	easy.classList.remove("selected");
+	buttonClick(gridSize);
+
+	for(var i=0;i< squares.length;i++){
+		squares[i].style.background = colors[i];
+		squares[i].style.display = "block";
+	}
+});
+
+	for(var i=0;i< squares.length;i++){
+		squares[i].style.background = colors[i];
+		squares[i].addEventListener("click",function(){
+
+			var clickedColor = this.style.backgroundColor;
+
+			if(clickedColor === pickedColor){
+				message.textContent = "Correct!";
+				var clickedColor = this.style.backgroundColor;
+				changeColorsWhenCorrect(clickedColor);
+			}else{
+				this.style.backgroundColor = "#232323";
+				message.textContent = "Uh Oh! Try Again";
+			}
+		})
+	}
+
+function buttonClick(gridSize){
+	headerDisplay.style.backgroundColor = "steelblue";
+	resetButton.textContent ="New Game";
+	colors = generateGridColors(gridSize);
+	pickedColor = pickColor();
+	colorDisplay.textContent = pickedColor;
+	message.textContent = " ";
 }
 
-//generating random colors for the array
-function generateRandomColors(gridsize){
+function generateGridColors(num){
 	var arr = [];
-	for(var i =0; i<gridsize;i++){
-		var R =getRandomIntInclusive(0,255);
-		var G =getRandomIntInclusive(0,255);
-		var B =getRandomIntInclusive(0,255);
-		arr[i] = "rgb(" +R+ ", " +G+", "+B+")";
+	for(var i=0;i<num;i++){
+		arr.push(randomColor());
 	}
 	return arr;
 }
 
-//generating hint
-function generateClue(colorsArray){
-	var hint =getRandomIntInclusive(0,5);
-	document.getElementById("hint").innerHTML = colorsArray[hint];
-	return hint;
+function randomColor(){
+	var red = Math.floor(Math.random() * 256);
+	var green = Math.floor(Math.random() * 256);
+	var blue = Math.floor(Math.random() * 256);
+
+	var color = "rgb(" + red + ", " + green + ", " + blue + ")";
+ 	return color;
 }
 
-//set square to array colors
-function setGridColors(colorsArray){
-	for (var i =0 ; i<squares.length;i++){
-		//assigning the colors to the squares
-		squares[i].style.backgroundColor = colorsArray[i];
+function pickColor(){
+	var random = Math.floor((Math.random() * colors.length ));
+	return colors[random];
+}
+
+function changeColorsWhenCorrect(color){
+	for(var i=0;i< colors.length;i++){
+		squares[i].style.backgroundColor = color;
 	}
-}
-
-//what happens when the squares are clicked!
-function clickLogic(){
-	
-	for (var i =0 ; i<squares.length;i++){
-		//checking if the guess si correct
-		squares[i].addEventListener("click",function(){
-		if(this.style.backgroundColor===colors[index]){
-			document.getElementById("message").innerHTML = "Yay! Good Job!!";
-			changeColor(this.style.backgroundColor);
-		}
-		else{
-			this.style.backgroundColor = "#232323";
-			document.getElementById("message").innerHTML = "Try Again!";
-		}
-		});
-	}
-}
-
-//change color of squares and jumbotron to the correct answer
-function changeColor(color){
-	for (var i =0 ; i<squares.length;i++){
-	//assigning the correct color to the squares
-	squares[i].style.backgroundColor = color;
-	}
-	//assigning the correct color to the jumbotron
-	var jumbotron = document.querySelector(".jumbotron");
-	jumbotron.style.background = color;
-}
-
-function removeColor(){
-	var jumbotron = document.querySelector(".jumbotron");
-	jumbotron.style.background = "steelblue";
+	headerDisplay.style.backgroundColor = color;
+	resetButton.textContent ="Play Again?";
 }
